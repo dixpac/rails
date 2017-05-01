@@ -63,6 +63,11 @@ module ActionDispatch
               component.gsub(pattern) { |unsafe| percent_encode(unsafe) }.force_encoding(US_ASCII)
             end
 
+            # Performs percent encoding a.k.a. URL encoding on specified string.
+            # The encoding consists of substitution: A '%' followed by the
+            # hexadecimal representation of the ASCII value of the replace character.
+            #
+            #   percent_encoding("abc") #=> "%61%62%63"
             def percent_encode(unsafe) # :doc:
               safe = EMPTY.dup
               unsafe.each_byte { |b| safe << DEC2HEX[b] }
