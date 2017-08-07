@@ -2,7 +2,7 @@ require_relative "<%= File.join('..', options[:dummy_path], 'config/environment'
 <% unless options[:skip_active_record] -%>
 ActiveRecord::Migrator.migrations_paths = [File.expand_path("../<%= options[:dummy_path] -%>/db/migrate", __dir__)]
 <% if options[:mountable] -%>
-ActiveRecord::Migrator.migrations_paths << File.expand_path('../db/migrate', __dir__)
+ActiveRecord::Migrator.migrations_paths << File.expand_path("../db/migrate", __dir__)
 <% end -%>
 <% end -%>
 require "rails/test_help"
@@ -12,7 +12,7 @@ require "rails/test_help"
 Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
 <% unless engine? -%>
-Rails::TestUnitReporter.executable = 'bin/test'
+Rails::TestUnitReporter.executable = "bin/test"
 <% end -%>
 
 # Load fixtures from the engine

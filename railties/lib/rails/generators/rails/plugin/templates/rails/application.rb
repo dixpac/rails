@@ -1,7 +1,7 @@
-require_relative 'boot'
+require_relative "boot"
 
 <% if include_all_railties? -%>
-require 'rails/all'
+require "rails/all"
 <% else -%>
 # Pick the frameworks you want:
 <%= comment_if :skip_active_record %>require "active_record/railtie"
