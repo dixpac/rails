@@ -4,7 +4,11 @@ class Person
   include ActiveModel::Validations
   extend  ActiveModel::Translation
 
-  attr_accessor :title, :karma, :salary, :gender
+  attr_accessor :title, :karma, :salary, :gender, :email
+
+  def initialize(options = {})
+    options.each { |name, value| send("#{name}=", value) }
+  end
 
   def condition_is_true
     true
