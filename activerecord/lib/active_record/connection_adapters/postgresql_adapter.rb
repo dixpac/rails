@@ -486,6 +486,15 @@ module ActiveRecord
         exec_query(query)
       end
 
+      def drop_enum(name, *args)
+        options = args.extact_options!
+
+        query = <<~SQL
+          DROP TYPE#{ ' IF EXISTS' if options[:if_exists] } #{quote_table_name(name)};
+        SQL
+        execute_query(query)
+      end
+
       # Returns the configured supported identifier length supported by PostgreSQL
       def max_identifier_length
         @max_identifier_length ||= query_value("SHOW max_identifier_length", "SCHEMA").to_i

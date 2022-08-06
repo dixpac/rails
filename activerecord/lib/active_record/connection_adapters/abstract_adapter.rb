@@ -475,6 +475,10 @@ module ActiveRecord
       def create_enum(*) # :nodoc:
       end
 
+      # This is meant to be implemented by the adapters that support custom enum types
+      def drop_enum(*) # :nodoc:
+      end
+
       def advisory_locks_enabled? # :nodoc:
         supports_advisory_locks? && @advisory_locks_enabled
       end
@@ -701,8 +705,7 @@ module ActiveRecord
                 Type::DecimalWithoutScale.new(precision: precision)
               else
                 Type::Decimal.new(precision: precision, scale: scale)
-              end
-            end
+              end end
           end
 
           def register_class_with_limit(mapping, key, klass)
