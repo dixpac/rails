@@ -23,7 +23,7 @@ class InstrumentationTest < ActiveSupport::TestCase
     assert_equal 1, events.size
   end
 
-  unless adapter_is?(:inline, :sneakers)
+  unless adapter_is?(:inline)
     test "retry emits an enqueue retry event" do
       events = subscribed("enqueue_retry.active_job") do
         perform_enqueued_jobs { RetryJob.perform_later("DefaultsError", 2) }

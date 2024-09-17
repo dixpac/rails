@@ -541,12 +541,6 @@ GEM
       multi_json (~> 1.10)
     sinatra (1.0)
       rack (>= 1.0)
-    sneakers (2.11.0)
-      bunny (~> 2.12)
-      concurrent-ruby (~> 1.0)
-      rake
-      serverengine (~> 2.0.5)
-      thor
     solid_cable (2.0.2)
       rails (>= 7.2)
     solid_cache (1.0.4)
@@ -703,7 +697,6 @@ DEPENDENCIES
   sdoc!
   selenium-webdriver (>= 4.20.0)
   sidekiq
-  sneakers
   solid_cable
   solid_cache
   solid_queue

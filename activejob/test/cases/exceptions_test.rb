@@ -12,7 +12,6 @@ class ExceptionsTest < ActiveSupport::TestCase
       [
         ActiveJob::QueueAdapters::InlineAdapter,
         ActiveJob::QueueAdapters::AsyncAdapter,
-        ActiveJob::QueueAdapters::SneakersAdapter
       ].include?(queue_adapter.class)
     end
   end

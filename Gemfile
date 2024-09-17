@@ -106,7 +106,6 @@ group :job do
   gem "sidekiq", require: false
   gem "delayed_job", require: false
   gem "queue_classic", ">= 4.0.0", require: false, platforms: :ruby
-  gem "sneakers", require: false
   gem "backburner", require: false
   gem "delayed_job_active_record", require: false
 end

@@ -39,8 +39,6 @@ class ActiveJobTestCaseTest < ActiveJob::TestCase
                  ActiveJob::QueueAdapters::ResqueAdapter
                when :sidekiq
                  ActiveJob::QueueAdapters::SidekiqAdapter
-               when :sneakers
-                 ActiveJob::QueueAdapters::SneakersAdapter
                else
                  raise NotImplementedError.new
     end
