@@ -117,7 +117,7 @@ module ActionView
         path_options = options.extract!("protocol", "extname", "host", "skip_pipeline").symbolize_keys
         preload_links = []
         use_preload_links_header = options["preload_links_header"].nil? ? preload_links_header : options.delete("preload_links_header")
-        nopush = options["nopush"].nil? ? true : options.delete("nopush")
+        nopush = options["nopush"].nil? || options.delete("nopush")
         crossorigin = options.delete("crossorigin")
         crossorigin = "anonymous" if crossorigin == true
         integrity = options["integrity"]
@@ -209,7 +209,7 @@ module ActionView
         preload_links = []
         crossorigin = options.delete("crossorigin")
         crossorigin = "anonymous" if crossorigin == true
-        nopush = options["nopush"].nil? ? true : options.delete("nopush")
+        nopush = options["nopush"].nil? || options.delete("nopush")
         integrity = options["integrity"]
 
         sources_tags = sources.uniq.map { |source|
@@ -604,6 +604,25 @@ module ActionView
       #   # => <audio src="/rails/active_storage/blobs/.../name_pronunciation_audio.mp3"></audio>
       def audio_tag(*sources)
         multiple_sources_tag_builder("audio", sources)
+      end
+
+      def svg_tag(name, options = {})
+        skip_pipeline = options.delete(:skip_pipeline)
+
+        # src_path = path_to_image(name, skip_pipeline: skip_pipeline)
+        # src_path = resolve_asset_source("image", name, skip_pipeline)
+
+        src_path = Rails.application.assets.load_path.find(name)
+
+        svg_source = File.read(src_path.path)
+        doc = Nokogiri::HTML::DocumentFragment.parse(svg_source)
+
+        svg_element = doc.at_css("svg")
+        options.each do |attr, value|
+          svg_element[attr.to_s] = value
+        end
+
+        svg_element.to_s.html_safe
       end
 
       private
