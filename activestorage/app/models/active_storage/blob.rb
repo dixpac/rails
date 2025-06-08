@@ -262,7 +262,18 @@ class ActiveStorage::Blob < ActiveStorage::Record
   end
 
   def upload_without_unfurling(io) # :nodoc:
-    service.upload key, io, checksum: checksum, **service_metadata
+    if encrypted?
+      io.rewind
+      data = io.read
+      io.rewind
+
+      encrypted_data = encryptor.encrypt(data)
+      encrypted_io = StringIO.new(encrypted_data)
+
+      service.upload key, encrypted_io, checksum: checksum, **service_metadata
+    else
+      service.upload key, io, checksum: checksum, **service_metadata
+    end
   end
 
   def compose(keys) # :nodoc:
