@@ -75,7 +75,8 @@ module ActiveStorage
             filename: attachable.original_filename,
             content_type: attachable.content_type,
             record: record,
-            service_name: attachment_service_name
+            service_name: attachment_service_name,
+            encrypted: attachment_encrypted?
           )
         when Rack::Test::UploadedFile
           ActiveStorage::Blob.build_after_unfurling(
@@ -83,13 +84,15 @@ module ActiveStorage
             filename: attachable.original_filename,
             content_type: attachable.content_type,
             record: record,
-            service_name: attachment_service_name
+            service_name: attachment_service_name,
+            encrypted: attachment_encrypted?
           )
         when Hash
           ActiveStorage::Blob.build_after_unfurling(
             **attachable.reverse_merge(
               record: record,
-              service_name: attachment_service_name
+              service_name: attachment_service_name,
+              encrypted: attachment_encrypted?
             ).symbolize_keys
           )
         when String
@@ -99,14 +102,16 @@ module ActiveStorage
             io: attachable,
             filename: File.basename(attachable),
             record: record,
-            service_name: attachment_service_name
+            service_name: attachment_service_name,
+            encrypted: attachment_encrypted?
           )
         when Pathname
           ActiveStorage::Blob.build_after_unfurling(
             io: attachable.open,
             filename: File.basename(attachable),
             record: record,
-            service_name: attachment_service_name
+            service_name: attachment_service_name,
+            encrypted: attachment_encrypted?
           )
         else
           raise(
@@ -124,6 +129,10 @@ module ActiveStorage
           Attached::Model.validate_service_configuration(service_name, record.class, name)
         end
         service_name
+      end
+
+      def attachment_encrypted?
+        record.attachment_reflections[name].options[:encrypted]
       end
   end
 end

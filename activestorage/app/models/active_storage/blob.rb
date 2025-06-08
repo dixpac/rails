@@ -77,14 +77,15 @@ class ActiveStorage::Blob < ActiveStorage::Record
       super(id, purpose: purpose)
     end
 
-    def build_after_unfurling(key: nil, io:, filename:, content_type: nil, metadata: nil, service_name: nil, identify: true, record: nil) # :nodoc:
+    def build_after_unfurling(key: nil, io:, filename:, content_type: nil, metadata: nil, service_name: nil, identify: true, record: nil, encrypted: false) # :nodoc:
       new(key: key, filename: filename, content_type: content_type, metadata: metadata, service_name: service_name).tap do |blob|
+        blob.metadata[:encrypted] = encrypted if encrypted
         blob.unfurl(io, identify: identify)
       end
     end
 
-    def create_after_unfurling!(key: nil, io:, filename:, content_type: nil, metadata: nil, service_name: nil, identify: true, record: nil) # :nodoc:
-      build_after_unfurling(key: key, io: io, filename: filename, content_type: content_type, metadata: metadata, service_name: service_name, identify: identify).tap(&:save!)
+    def create_after_unfurling!(key: nil, io:, filename:, content_type: nil, metadata: nil, service_name: nil, identify: true, record: nil, encrypted: false) # :nodoc:
+      build_after_unfurling(key: key, io: io, filename: filename, content_type: content_type, metadata: metadata, service_name: service_name, identify: identify, encrypted: encrypted).tap(&:save!)
     end
 
     # Creates a new blob instance and then uploads the contents of
@@ -177,6 +178,14 @@ class ActiveStorage::Blob < ActiveStorage::Record
   # that's safe to use in URLs.
   def filename
     ActiveStorage::Filename.new(self[:filename])
+  end
+
+  def encrypted?
+    metadata[:encrypted] == true
+  end
+
+  def encryptor
+    @encryptor ||= ActiveRecord::Encryption::Encryptor.new
   end
 
   def custom_metadata
