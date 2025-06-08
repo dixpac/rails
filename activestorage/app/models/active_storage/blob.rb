@@ -255,10 +255,24 @@ class ActiveStorage::Blob < ActiveStorage::Record
   end
 
   def unfurl(io, identify: true) # :nodoc:
-    self.checksum     = compute_checksum_in_chunks(io)
-    self.content_type = extract_content_type(io) if content_type.nil? || identify
-    self.byte_size    = io.size
-    self.identified   = true
+    if encrypted?
+      io.rewind
+      original_data = io.read
+      io.rewind
+
+      self.checksum = compute_checksum_in_chunks(StringIO.new(original_data))
+
+      encrypted_data = encryptor.encrypt(original_data)
+      self.byte_size = encrypted_data.bytesize
+
+      self.content_type = extract_content_type(io) if content_type.nil? || identify
+      self.identified = true
+    else
+      self.checksum     = compute_checksum_in_chunks(io)
+      self.content_type = extract_content_type(io) if content_type.nil? || identify
+      self.byte_size    = io.size
+      self.identified   = true
+    end
   end
 
   def upload_without_unfurling(io) # :nodoc:
@@ -269,8 +283,11 @@ class ActiveStorage::Blob < ActiveStorage::Record
 
       encrypted_data = encryptor.encrypt(data)
       encrypted_io = StringIO.new(encrypted_data)
+      encrypted_io.rewind
 
-      service.upload key, encrypted_io, checksum: checksum, **service_metadata
+      encrypted_checksum = ActiveStorage.checksum_implementation.base64digest(encrypted_data)
+
+      service.upload key, encrypted_io, checksum: encrypted_checksum, **service_metadata
     else
       service.upload key, io, checksum: checksum, **service_metadata
     end
@@ -284,7 +301,25 @@ class ActiveStorage::Blob < ActiveStorage::Record
   # Downloads the file associated with this blob. If no block is given, the entire file is read into memory and returned.
   # That'll use a lot of RAM for very large files. If a block is given, then the download is streamed and yielded in chunks.
   def download(&block)
-    service.download key, &block
+    if encrypted?
+      encrypted_data = service.download(key)
+      decrypted_data = encryptor.decrypt(encrypted_data)
+
+      if block_given?
+        # Stream in chunks
+        chunk_size = 5.megabytes
+        offset = 0
+        while offset < decrypted_data.bytesize
+          chunk = decrypted_data.byteslice(offset, chunk_size)
+          yield chunk
+          offset += chunk_size
+        end
+      else
+        decrypted_data
+      end
+    else
+      service.download key, &block
+    end
   end
 
   # Downloads a part of the file associated with this blob.
