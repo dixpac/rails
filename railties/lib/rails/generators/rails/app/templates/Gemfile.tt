@@ -24,6 +24,11 @@ gem "solid_queue"
 gem "solid_cable"
 <% end -%>
 <% end -%>
+<% unless skip_pagination? -%>
+
+# Paginate Active Record sets at variable speeds [https://github.com/basecamp/geared_pagination]
+gem "geared_pagination"
+<% end -%>
 <% if depend_on_bootsnap? -%>
 
 # Reduces boot times through caching; required in config/boot.rb
